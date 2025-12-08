@@ -1,9 +1,11 @@
-#!/usr/bin/env python
+from flask import Flask
 
-"""Top-level script to invoke helloworld implementation."""
+app = Flask(__name__)
 
-import sys
-import helloworld.main
+@app.route("/")
+def home():
+    return "Hello, World from Flask!"
 
-if __name__ == '__main__':
-    sys.exit(helloworld.main.main())
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=8080)
+
