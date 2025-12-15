@@ -65,7 +65,7 @@ spec:
       steps {
         container('docker') {
           sh '''
-            gcloud auth configure-docker ${REGION}-docker.pkg.dev --quiet
+            
             docker push ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${TAG}
           '''
         }
