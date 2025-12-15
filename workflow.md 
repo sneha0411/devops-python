@@ -1,0 +1,21 @@
+# this is the page to review the the workflow and design of hosting a flask container using python, Dockerfile
+
+this repo is forked from a public github repo which contains the flask code for hello world 
+we have added a docker file in the same directory and a requirement.txt containing the application dependecies 
+
+****** docker command *******
+docker images 
+docker ps -a
+docker run image_name 
+docker run -it image bash 
+docker run -d 
+docker stop containerid 
+docker prune 
+docker build -t imagename/tag .
+
+
+******. docker file *****
+FROM python3.11
+workdir /app
+copy . .
+run install requirement.txt 
