@@ -5,7 +5,7 @@ pipeline {
 apiVersion: v1
 kind: Pod
 spec:
-  serviceAccountName: jenkins-agent
+  serviceAccountName: jenkins-ksa
   containers:
   - name: docker
     image: docker:26.1.4-cli
