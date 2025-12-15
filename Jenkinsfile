@@ -8,7 +8,7 @@ spec:
   serviceAccountName: jenkins-agent
   containers:
   - name: docker
-    image: google/cloud-sdk:slim
+    image: docker:26.1.4-cli
     command:
     - cat
     tty: true
