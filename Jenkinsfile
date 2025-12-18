@@ -6,19 +6,26 @@ apiVersion: v1
 kind: Pod
 spec:
   serviceAccountName: jenkins-ksa
-  containers:
-  - name: docker
-    image: google/cloud-sdk:slim
+    containers:
+    - name: docker
+    image: docker:26.1.4-cli
     command:
     - cat
     tty: true
     volumeMounts:
     - name: docker-sock
-      mountPath: /var/run/docker.sock
-  volumes:
-  - name: docker-sock
+        mountPath: /var/run/docker.sock
+
+    - name: gcloud
+    image: google/cloud-sdk:slim
+    command:
+    - cat
+    tty: true
+
+    volumes:
+    - name: docker-sock
     hostPath:
-      path: /var/run/docker.sock
+        path: /var/run/docker.sock
 """
     }
   }
