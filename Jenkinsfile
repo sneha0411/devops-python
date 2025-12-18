@@ -8,7 +8,7 @@ spec:
   serviceAccountName: jenkins-ksa
   containers:
   - name: docker
-    image: docker:26.1.4-cli
+    image: google/cloud-sdk:slim
     command:
     - cat
     tty: true
