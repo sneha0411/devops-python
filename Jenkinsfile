@@ -12,7 +12,7 @@ spec:
     hostPath:
       path: /var/run/docker.sock
 
-  - name: docker-config                
+  - name: docker-config
     emptyDir: {}
 
   containers:
@@ -24,7 +24,7 @@ spec:
     - name: docker-sock
       mountPath: /var/run/docker.sock
     - name: docker-config
-      mountPath: /root/.docker         
+      mountPath: /root/.docker
 
   - name: gcloud
     image: google/cloud-sdk:slim
@@ -32,8 +32,7 @@ spec:
     tty: true
     volumeMounts:
     - name: docker-config
-      mountPath: /root/.docker         
-
+      mountPath: /root/.docker
 """
     }
   }
@@ -42,8 +41,9 @@ spec:
     PROJECT_ID = "project-b9c15744-8559-4eae-9ba"
     REGION     = "us-central1"
     REPO       = "devops-python"
-    IMAGE      = "app"
-    TAG        = "latest"
+    IMAGE_NAME = "python-app"
+    TAG        = "${BUILD_NUMBER}"
+    IMAGE_URI  = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE_NAME}:${TAG}"
   }
 
   stages {
@@ -54,49 +54,43 @@ spec:
       }
     }
 
-    stage('Verify Workspace') {
-      steps {
-        container('docker') {
-          sh '''
-            pwd
-            ls -l
-          '''
-        }
-      }
-    }
-
-
     stage('Authenticate to Artifact Registry') {
-    steps {
+      steps {
         container('gcloud') {
-        sh '''
+          sh '''
             gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
-        '''
-        }
-      }
-    }
-
-    stage('Build Image') {
-      steps {
-        container('docker') {
-          sh '''
-            docker build \
-              -t ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${TAG} .
           '''
         }
       }
     }
 
-
-    stage('Push Image') {
+    stage('Build Docker Image') {
       steps {
         container('docker') {
           sh '''
-            
-            docker push ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${TAG}
+            docker build -t ${IMAGE_URI} .
           '''
         }
       }
+    }
+
+    stage('Push Docker Image') {
+      steps {
+        container('docker') {
+          sh '''
+            docker push ${IMAGE_URI}
+          '''
+        }
+      }
+    }
+  }
+
+  post {
+    success {
+      echo "✅ Image pushed successfully: ${IMAGE_URI}"
+    }
+    failure {
+      echo "❌ Build or push failed"
     }
   }
 }

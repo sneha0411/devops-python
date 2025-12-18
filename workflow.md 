@@ -19,3 +19,7 @@ FROM python3.11
 workdir /app
 copy . .
 run install requirement.txt 
+
+Imaage creation and image push workflow - 
+
+
