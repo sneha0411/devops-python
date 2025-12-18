@@ -60,14 +60,14 @@ spec:
 
     stage('Authenticate to Artifact Registry') {
     steps {
-        container('docker') {
+        container('gcloud') {
         sh '''
             gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
         '''
         }
       }
     }
-    
+
     stage('Build Image') {
       steps {
         container('docker') {
