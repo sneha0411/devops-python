@@ -7,64 +7,33 @@ kind: Pod
 spec:
   serviceAccountName: jenkins-ksa
   containers:
-  - name: builder
-    image: google/cloud-sdk:slim
-    command: ["sh", "-c", "sleep infinity"]
+  - name: kaniko
+    image: gcr.io/kaniko-project/executor:latest
+    args:
+      - "--dockerfile=Dockerfile"
+      - "--context=dir:///home/jenkins/agent/workspace/hello-world-build"
+      - "--destination=us-central1-docker.pkg.dev/project-b9c15744-8559-4eae-9ba/devops-python/python-app:${BUILD_NUMBER}"
     volumeMounts:
-    - name: docker-sock
-      mountPath: /var/run/docker.sock
+    - name: workspace-volume
+      mountPath: /home/jenkins/agent
   volumes:
-  - name: docker-sock
-    hostPath:
-      path: /var/run/docker.sock
+  - name: workspace-volume
+    emptyDir: {}
 """
     }
   }
 
-  environment {
-    PROJECT_ID = "project-b9c15744-8559-4eae-9ba"
-    REGION     = "us-central1"
-    REPO       = "devops-python"
-    IMAGE      = "python-app"
-    TAG        = "${BUILD_NUMBER}"
-  }
-
   stages {
-
     stage('Checkout') {
       steps {
         checkout scm
       }
     }
 
-    stage('Authenticate to Artifact Registry') {
+    stage('Build & Push Image') {
       steps {
-        container('builder') {
-          sh '''
-            gcloud auth list
-            gcloud auth configure-docker ${REGION}-docker.pkg.dev --quiet
-          '''
-        }
-      }
-    }
-
-    stage('Build Image') {
-      steps {
-        container('builder') {
-          sh '''
-            docker build \
-              -t ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${TAG} .
-          '''
-        }
-      }
-    }
-
-    stage('Push Image') {
-      steps {
-        container('builder') {
-          sh '''
-            docker push ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${TAG}
-          '''
+        container('kaniko') {
+          sh 'echo "Building and pushing image with Kaniko"'
         }
       }
     }
