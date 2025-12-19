@@ -36,7 +36,7 @@ spec:
             /kaniko/executor \
               --dockerfile=Dockerfile \
               --context=/home/jenkins/agent/workspace/hello-world-build \
-              --destination=us-central1-docker.pkg.dev/project-b9c15744-8559-4eae-9ba/devops-python/python-app:${BUILD_NUMBER}
+              --destination=us-central1-docker.pkg.dev/project-b9c15744-8559-4eae-9ba/python-app/hello-python:${BUILD_NUMBER}
           '''
         }
       }
