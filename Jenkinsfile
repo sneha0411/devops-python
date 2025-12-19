@@ -6,33 +6,17 @@ apiVersion: v1
 kind: Pod
 spec:
   serviceAccountName: jenkins-ksa
-
+  containers:
+  - name: builder
+    image: google/cloud-sdk:slim
+    command: ["sh", "-c", "sleep infinity"]
+    volumeMounts:
+    - name: docker-sock
+      mountPath: /var/run/docker.sock
   volumes:
   - name: docker-sock
     hostPath:
       path: /var/run/docker.sock
-
-  - name: docker-config
-    emptyDir: {}
-
-  containers:
-  - name: docker
-    image: docker:26.1.4-cli
-    command: ["cat"]
-    tty: true
-    volumeMounts:
-    - name: docker-sock
-      mountPath: /var/run/docker.sock
-    - name: docker-config
-      mountPath: /root/.docker
-
-  - name: gcloud
-    image: google/cloud-sdk:slim
-    command: ["cat"]
-    tty: true
-    volumeMounts:
-    - name: docker-config
-      mountPath: /root/.docker
 """
     }
   }
@@ -41,14 +25,13 @@ spec:
     PROJECT_ID = "project-b9c15744-8559-4eae-9ba"
     REGION     = "us-central1"
     REPO       = "devops-python"
-    IMAGE_NAME = "python-app"
+    IMAGE      = "python-app"
     TAG        = "${BUILD_NUMBER}"
-    IMAGE_URI  = "${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE_NAME}:${TAG}"
   }
 
   stages {
 
-    stage('Checkout Source Code') {
+    stage('Checkout') {
       steps {
         checkout scm
       }
@@ -56,41 +39,34 @@ spec:
 
     stage('Authenticate to Artifact Registry') {
       steps {
-        container('gcloud') {
+        container('builder') {
           sh '''
-            gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+            gcloud auth list
+            gcloud auth configure-docker ${REGION}-docker.pkg.dev --quiet
           '''
         }
       }
     }
 
-    stage('Build Docker Image') {
+    stage('Build Image') {
       steps {
-        container('docker') {
+        container('builder') {
           sh '''
-            docker build -t ${IMAGE_URI} .
+            docker build \
+              -t ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${TAG} .
           '''
         }
       }
     }
 
-    stage('Push Docker Image') {
+    stage('Push Image') {
       steps {
-        container('docker') {
+        container('builder') {
           sh '''
-            docker push ${IMAGE_URI}
+            docker push ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE}:${TAG}
           '''
         }
       }
-    }
-  }
-
-  post {
-    success {
-      echo "✅ Image pushed successfully: ${IMAGE_URI}"
-    }
-    failure {
-      echo "❌ Build or push failed"
     }
   }
 }
