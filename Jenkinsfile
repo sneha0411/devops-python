@@ -8,9 +8,9 @@ spec:
   serviceAccountName: jenkins-ksa
   containers:
   - name: kaniko
-    image: gcr.io/kaniko-project/executor:latest
+    image: gcr.io/kaniko-project/executor:debug
     command:
-      - /busybox/cat
+      - cat
     tty: true
     volumeMounts:
     - name: workspace-volume
@@ -29,7 +29,7 @@ spec:
       }
     }
 
-    stage('Build & Push Image (Kaniko)') {
+    stage('Build & Push Image') {
       steps {
         container('kaniko') {
           sh '''
