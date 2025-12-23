@@ -63,9 +63,7 @@ spec:
     }
 
     stage('Terraform Apply') {
-      when {
-        branch 'feature/devops_cicd'
-      }
+ 
       steps {
         container('terraform') {
           sh '''
