@@ -35,3 +35,7 @@ variable "machine_type" {
   type        = string
   default     = "e2-medium"
 }
+variable "gke_cluster_sa" {
+  type        = string
+  description = "Service account for GKE control plane"
+}

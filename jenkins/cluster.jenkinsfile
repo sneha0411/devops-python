@@ -17,11 +17,22 @@ spec:
   }
 
   environment {
+    PROJECT_ID = "project-b9c15744-8559-4eae-9ba"
+    SA_EMAIL   = "gke-cluster-sa@project-b9c15744-8559-4eae-9ba.iam.gserviceaccount.com"
     TF_IN_AUTOMATION = "true"
     TF_INPUT         = "false"
   }
 
   stages {
+
+
+    stage('Authenticate to GCP via WIF') {
+      steps {
+        sh '''
+          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-wif-creds.json
+        '''
+      }
+    }
 
     stage('Checkout Code') {
       steps {

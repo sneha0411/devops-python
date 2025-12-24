@@ -7,3 +7,4 @@ subnetwork = "default"
 
 node_count   = 1
 machine_type = "e2-medium"
+gke_cluster_sa  = "gke-cluster-sa@project-b9c15744-8559-4eae-9ba.iam.gserviceaccount.com"
