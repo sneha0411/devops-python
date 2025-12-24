@@ -17,20 +17,22 @@ spec:
   }
 
   environment {
-    PROJECT_ID = "project-b9c15744-8559-4eae-9ba"
-    SA_EMAIL   = "gke-cluster-sa@project-b9c15744-8559-4eae-9ba.iam.gserviceaccount.com"
+    PROJECT_ID       = "project-b9c15744-8559-4eae-9ba"
     TF_IN_AUTOMATION = "true"
     TF_INPUT         = "false"
   }
 
   stages {
 
-
-    stage('Authenticate to GCP via WIF') {
+    stage('Verify GCP Identity (DEBUG)') {
       steps {
-        sh '''
-          export GOOGLE_APPLICATION_CREDENTIALS=/tmp/gcp-wif-creds.json
-        '''
+        container('terraform') {
+          sh '''
+            echo "=== GCP AUTH DEBUG ==="
+            gcloud auth list || true
+            gcloud config list || true
+          '''
+        }
       }
     }
 
@@ -74,7 +76,6 @@ spec:
     }
 
     stage('Terraform Apply') {
- 
       steps {
         container('terraform') {
           sh '''
