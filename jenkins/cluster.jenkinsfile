@@ -8,7 +8,7 @@ spec:
   serviceAccountName: jenkins-ksa
   containers:
   - name: terraform
-    image: hashicorp/terraform:1.7
+    image: google/cloud-sdk:slim
     command:
     - cat
     tty: true
@@ -35,6 +35,29 @@ spec:
         }
       }
     }
+
+
+    stage('Install Terraform') {
+      steps {
+        container('terraform') {
+          sh '''
+            set -e
+
+            TERRAFORM_VERSION=1.7.5
+
+            apt-get update -y
+            apt-get install -y unzip curl
+
+            curl -fsSL https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -o terraform.zip
+            unzip terraform.zip
+            mv terraform /usr/local/bin/
+
+            terraform version
+          '''
+    }
+  }
+}
+
 
     stage('Checkout Code') {
       steps {
