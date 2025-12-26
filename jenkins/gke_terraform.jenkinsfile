@@ -68,6 +68,18 @@ spec:
       }
     }
 
+    stage('Configure Docker Auth for Artifact Registry') {
+      steps {
+        container('gcloud') {
+            sh '''
+                gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
+            '''
+        }
+      }
+    }
+
+
+
     stage('Push Image to Artifact Registry') {
       steps {
         container('docker') {
