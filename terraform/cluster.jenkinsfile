@@ -1,0 +1,82 @@
+pipeline {
+  agent {
+    kubernetes {
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  serviceAccountName: jenkins-ksa
+  containers:
+  - name: terraform
+    image: us-central1-docker.pkg.dev/project-b9c15744-8559-4eae-9ba/python-app/gcloud-terraform:2.0
+    command:
+    - cat
+    tty: true
+"""
+    }
+  }
+
+  environment {
+    PROJECT_ID = "project-b9c15744-8559-4eae-9ba"
+    CLUSTER    = "my-gke-cluster"
+    REGION     = "us-central1"
+  }
+
+  stages {
+
+    stage('Verify Tools') {
+      steps {
+        container('terraform') {
+          sh '''
+            terraform version
+            gcloud version
+          '''
+        }
+      }
+    }
+
+    stage('Authenticate to GKE') {
+      steps {
+        container('terraform') {
+          sh '''
+            gcloud container clusters get-credentials ${CLUSTER} \
+              --region ${REGION} \
+              --project ${PROJECT_ID}
+
+            kubectl get nodes
+          '''
+        }
+      }
+    }
+
+    stage('Terraform Init') {
+      steps {
+        container('terraform') {
+          sh '''
+            terraform init
+          '''
+        }
+      }
+    }
+
+    stage('Terraform Plan') {
+      steps {
+        container('terraform') {
+          sh '''
+            terraform plan
+          '''
+        }
+      }
+    }
+
+    stage('Terraform Apply') {
+      steps {
+        container('terraform') {
+          sh '''
+            terraform apply -auto-approve
+          '''
+        }
+      }
+    }
+  }
+}
