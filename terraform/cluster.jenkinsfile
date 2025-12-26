@@ -35,6 +35,21 @@ spec:
       }
     }
 
+    stage('Activate GSA via Workload Identity') {
+      steps {
+        container('terraform') {
+          sh '''
+            set -e
+            echo "Using Workload Identity GSA"
+            gcloud config set project ${PROJECT_ID}
+            gcloud auth list
+            gcloud config set account jenkins-gsa@project-b9c15744-8559-4eae-9ba.iam.gserviceaccount.com
+          '''
+        }
+      }
+    }
+
+
     stage('Authenticate to GKE') {
       steps {
         container('terraform') {
