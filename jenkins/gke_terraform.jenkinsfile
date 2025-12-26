@@ -52,7 +52,7 @@ spec:
       steps {
         container('gcloud') {
           sh '''
-            gcloud auth configure-docker ${REGION}-docker.pkg.dev --quiet
+            gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
           '''
         }
       }
@@ -64,16 +64,6 @@ spec:
           sh '''
             docker build -f app/gke_terraform.dockerfile -t ${FULL_IMAGE} .
           '''
-        }
-      }
-    }
-
-    stage('Configure Docker Auth for Artifact Registry') {
-      steps {
-        container('gcloud') {
-            sh '''
-                gcloud auth configure-docker us-central1-docker.pkg.dev --quiet
-            '''
         }
       }
     }
