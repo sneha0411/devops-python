@@ -28,7 +28,7 @@ spec:
   environment {
     PROJECT_ID = "project-b9c15744-8559-4eae-9ba"
     REGION     = "us-east1"
-    REPO       = "cicd-images"
+    REPO       = "python-app"
     IMAGE_NAME = "gcloud-terraform"
     IMAGE_TAG  = "1.7.5"
     FULL_IMAGE = "us-east1-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE_NAME}:${IMAGE_TAG}"
