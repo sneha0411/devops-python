@@ -8,7 +8,7 @@ spec:
   serviceAccountName: jenkins-ksa
   containers:
   - name: terraform
-    image: us-central1-docker.pkg.dev/project-b9c15744-8559-4eae-9ba/python-app/gcloud-terraform:2.0
+    image: us-central1-docker.pkg.dev/project-b9c15744-8559-4eae-9ba/python-app/gcloud-terraform:3.0
     command:
     - cat
     tty: true
