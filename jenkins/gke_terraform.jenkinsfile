@@ -1,0 +1,92 @@
+pipeline {
+  agent {
+    kubernetes {
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  serviceAccountName: jenkins-ksa
+  containers:
+  - name: docker
+    image: docker:27.1-dind
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - name: docker-graph-storage
+      mountPath: /var/lib/docker
+  - name: gcloud
+    image: google/cloud-sdk:slim
+    command: ["cat"]
+    tty: true
+  volumes:
+  - name: docker-graph-storage
+    emptyDir: {}
+"""
+    }
+  }
+
+  environment {
+    PROJECT_ID = "project-b9c15744-8559-4eae-9ba"
+    REGION     = "us-east1"
+    REPO       = "cicd-images"
+    IMAGE_NAME = "gcloud-terraform"
+    IMAGE_TAG  = "1.7.5"
+    FULL_IMAGE = "us-east1-docker.pkg.dev/${PROJECT_ID}/${REPO}/${IMAGE_NAME}:${IMAGE_TAG}"
+  }
+
+  stages {
+
+    stage('Verify GCP Identity (DEBUG)') {
+      steps {
+        container('gcloud') {
+          sh '''
+            echo "=== GCP AUTH DEBUG ==="
+            gcloud auth list
+            gcloud config list
+          '''
+        }
+      }
+    }
+
+    stage('Configure Docker Auth for Artifact Registry') {
+      steps {
+        container('gcloud') {
+          sh '''
+            gcloud auth configure-docker ${REGION}-docker.pkg.dev --quiet
+          '''
+        }
+      }
+    }
+
+    stage('Build Docker Image') {
+      steps {
+        container('docker') {
+          sh '''
+            docker build -f app/gke_terraform.dockerfile -t ${FULL_IMAGE} .
+          '''
+        }
+      }
+    }
+
+    stage('Push Image to Artifact Registry') {
+      steps {
+        container('docker') {
+          sh '''
+            docker push ${FULL_IMAGE}
+          '''
+        }
+      }
+    }
+
+    stage('Verify Image') {
+      steps {
+        container('gcloud') {
+          sh '''
+            gcloud artifacts docker images list \
+              ${REGION}-docker.pkg.dev/${PROJECT_ID}/${REPO}
+          '''
+        }
+      }
+    }
+  }
+}
