@@ -56,8 +56,15 @@ spec:
           sh '''
             set -e
 
-            echo "Installing kubectl and GKE auth plugin"
-            gcloud components install kubectl gke-gcloud-auth-plugin --quiet
+            echo "Installing kubectl and GKE auth plugin via apt"
+            apt-get update -y
+            apt-get install -y \
+              kubectl \
+              google-cloud-cli-gke-gcloud-auth-plugin
+
+            echo "Verify installs"
+            kubectl version --client
+            gke-gcloud-auth-plugin --version
 
             echo "Fetching cluster credentials"
             gcloud container clusters get-credentials jenkins-cluster \
@@ -70,6 +77,7 @@ spec:
         }
       }
     }
+
 
 
     stage('Terraform Init') {
