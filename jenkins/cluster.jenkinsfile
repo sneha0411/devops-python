@@ -83,7 +83,7 @@ spec:
         container('terraform') {
           dir('terraform') {
             sh '''
-              terraform init
+              terraform init -migrate-state
             '''
           }
         }
