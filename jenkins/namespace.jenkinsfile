@@ -27,16 +27,42 @@ spec:
 
   stages {
 
+    stage('Activate GSA via Workload Identity') {
+      steps {
+        container('terraform') {
+          sh '''
+            set -e
+            echo "Using Workload Identity GSA"
+            gcloud config set project ${PROJECT_ID}
+            gcloud auth list
+            gcloud config set account jenkins-gsa@project-b9c15744-8559-4eae-9ba.iam.gserviceaccount.com
+          '''
+        }
+      }
+    }
+
     stage('Authenticate to GKE') {
       steps {
         container('terraform') {
           sh '''
             set -e
-            gcloud config set project ${PROJECT_ID}
-            gcloud container clusters get-credentials ${CLUSTER} \
-              --zone ${LOCATION} \
-              --project ${PROJECT_ID}
 
+            echo "Installing kubectl and GKE auth plugin via apt"
+            apt-get update -y
+            apt-get install -y \
+              kubectl \
+              google-cloud-cli-gke-gcloud-auth-plugin
+
+            echo "Verify installs"
+            kubectl version --client
+            gke-gcloud-auth-plugin --version
+
+            echo "Fetching cluster credentials"
+            gcloud container clusters get-credentials jenkins-cluster \
+              --zone us-central1-a \
+              --project project-b9c15744-8559-4eae-9ba
+
+            echo "Validating cluster access"
             kubectl get nodes
           '''
         }
