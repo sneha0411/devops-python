@@ -1,0 +1,79 @@
+pipeline {
+  agent {
+    kubernetes {
+      yaml """
+apiVersion: v1
+kind: Pod
+spec:
+  serviceAccountName: jenkins-ksa
+  containers:
+  - name: terraform
+    image: us-central1-docker.pkg.dev/project-b9c15744-8559-4eae-9ba/python-app/gcloud-terraform:3.0
+    command: ["cat"]
+    tty: true
+"""
+    }
+  }
+
+  environment {
+    PROJECT_ID = "project-b9c15744-8559-4eae-9ba"
+    CLUSTER    = "jenkins-cluster"
+    LOCATION   = "us-central1-a"
+  }
+
+  options {
+    disableConcurrentBuilds()
+  }
+
+  stages {
+
+    stage('Authenticate to GKE') {
+      steps {
+        container('terraform') {
+          sh '''
+            set -e
+            gcloud config set project ${PROJECT_ID}
+            gcloud container clusters get-credentials ${CLUSTER} \
+              --zone ${LOCATION} \
+              --project ${PROJECT_ID}
+
+            kubectl get nodes
+          '''
+        }
+      }
+    }
+
+    stage('Terraform Init') {
+      steps {
+        container('terraform') {
+          sh '''
+            cd terraform
+            terraform init
+          '''
+        }
+      }
+    }
+
+    stage('Terraform Plan') {
+      steps {
+        container('terraform') {
+          sh '''
+            cd terraform
+            terraform plan
+          '''
+        }
+      }
+    }
+
+    stage('Terraform Apply') {
+      steps {
+        container('terraform') {
+          sh '''
+            cd terraform
+            terraform apply -auto-approve
+          '''
+        }
+      }
+    }
+  }
+}
