@@ -19,7 +19,7 @@ spec:
   environment {
     PROJECT_ID = "project-b9c15744-8559-4eae-9ba"
     CLUSTER    = "my-gke-cluster"
-    REGION     = "us-central1"
+    REGION     = "us-central1-a"
   }
 
   stages {
