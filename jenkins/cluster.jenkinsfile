@@ -78,14 +78,14 @@ spec:
       }
     }
 
-
-
     stage('Terraform Init') {
       steps {
         container('terraform') {
-          sh '''
-            terraform init
-          '''
+          dir('terraform') {
+            sh '''
+              terraform init
+            '''
+          }
         }
       }
     }
@@ -93,9 +93,11 @@ spec:
     stage('Terraform Plan') {
       steps {
         container('terraform') {
-          sh '''
-            terraform plan
-          '''
+          dir('terraform') {
+            sh '''
+              terraform plan
+            '''
+          }
         }
       }
     }
@@ -103,11 +105,14 @@ spec:
     stage('Terraform Apply') {
       steps {
         container('terraform') {
-          sh '''
-            terraform apply -auto-approve
-          '''
+          dir('terraform') {
+            sh '''
+              terraform apply -auto-approve
+            '''
+          }
         }
       }
     }
+
   }
 }
