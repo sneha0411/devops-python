@@ -19,7 +19,7 @@ spec:
   environment {
     PROJECT_ID = "project-b9c15744-8559-4eae-9ba"
     CLUSTER    = "jenkins-cluster"
-    REGION     = "us-central1-a"
+    ZONE     = "us-central1-a"
   }
 
   stages {
@@ -54,15 +54,23 @@ spec:
       steps {
         container('terraform') {
           sh '''
-            gcloud container clusters get-credentials ${CLUSTER} \
-              --region ${REGION} \
-              --project ${PROJECT_ID}
+            set -e
 
+            echo "Installing kubectl and GKE auth plugin"
+            gcloud components install kubectl gke-gcloud-auth-plugin --quiet
+
+            echo "Fetching cluster credentials"
+            gcloud container clusters get-credentials jenkins-cluster \
+              --zone us-central1-a \
+              --project project-b9c15744-8559-4eae-9ba
+
+            echo "Validating cluster access"
             kubectl get nodes
           '''
         }
       }
     }
+
 
     stage('Terraform Init') {
       steps {
