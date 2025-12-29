@@ -18,7 +18,7 @@ spec:
 
   environment {
     PROJECT_ID = "project-b9c15744-8559-4eae-9ba"
-    CLUSTER    = "my-gke-cluster"
+    CLUSTER    = "jenkins-cluster"
     REGION     = "us-central1-a"
   }
 
