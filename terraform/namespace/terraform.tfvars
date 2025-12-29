@@ -1,5 +1,5 @@
 project_id    = "project-b9c15744-8559-4eae-9ba"
 cluster_name  = "gke-app-cluster"
-location      = "us-central1-a"
+location      = "us-east1"
 namespace     = "gke-ns"
 environment   = "dev"

@@ -17,8 +17,8 @@ spec:
 
   environment {
     PROJECT_ID = "project-b9c15744-8559-4eae-9ba"
-    CLUSTER    = "my-app-cluster"
-    LOCATION   = "us-central1-a"
+    CLUSTER    = "gke-app-cluster"
+    LOCATION   = "us-east1"
   }
 
   options {
